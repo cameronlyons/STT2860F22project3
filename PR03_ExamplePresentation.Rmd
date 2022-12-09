@@ -1,6 +1,6 @@
 ---
 title: "Final Presentation"
-author: "Author: Jill E. Thomley"
+author: "Author: Cameron Lyons"
 date: "`r format(Sys.time(), '%B %d, %Y @ %I:%M %p')`"
 output: ioslides_presentation
 ---
@@ -16,217 +16,270 @@ knitr::opts_chunk$set(
 
 ## Packages Used
 
-I used tidyverse for data manipulation and plotting.
+I used dplyr for data manipulation and plotting.
 
 ```{r, echo = TRUE}
-library(tidyverse)
+library(dplyr)
 ```
 
-I need mapdata to plot on a map of the United States.
+I need readr to load in master file.
 
 ```{r, echo = TRUE}
-library(mapdata)
+library(readr)
 ```
 
-I need scales to format a percentage axis.
+I need ggplot to create spray chart and heat map.
+
+```{r, echo = TRUE}
+library(ggplot2)
+```
+
+I need scales to format the heat map.
 
 ```{r, echo = TRUE}
 library(scales)
 ```
 
-## Capital Punishment Dataset
+## Appalachian State Baseball Dataset
 
-I compiled my dataset using several sources found at the web site of the nonprofit [Death Penalty Information Center](https://deathpenaltyinfo.org/). The dataset was last updated January 7, 2022, so some of the values may have changed between that date and now. 
+I compiled my dataset using this semester's TrackMan data collection with Appalachian State Baseball. The dataset was last updated November 6, 2022, for our last scrimmage of the Fall.
 
-**Variables in the Dataset:**
+**Variables Used in the Dataset:**
 
-* `state`: state name (including District of Columbia)
-* `region`: US Census region
-* `division`: US Census regional subdivision
-* `court`: US Court of Appeals regional circuit
-* `dp1`: whether the state legally has the death penalty (yes/no)
-* `dp2`: dp1, but indicates states with a governor’s moratorium  
+* `PitcherTeam`: pitching team
+* `BatterTeam`: batting team
+* `Bearing`: axis of ball in play (dead center = 0)
+* `Distance`: ball in play distance (feet)
+* `PlayResult`: outcome of play
+* `TaggedHitType`: hit type of ball in play  
 
 ## 
 
-* `abolished`: year the state abolished capital punishment
-* `post1976`: number of executions after 1976 (state only)
-* `pre1976`: executions before 1976 (may include fed/military)
-* `prisoners`: total number of prisoners currently on death row
-* `women`: number of women on death row (subset of prisoners)
-* `freed`: number of innocent people later freed from death row
-* `clemency`: number of people who were granted clemency
-* `life`: can the state sentence an adult to life without parole?
-* `lifejuvie`: can a juvenile get a life without parole sentence?
-* `felony`: can you get the death penalty as a felony accessory?
-* `sentence`: who makes the decision about whether someone gets the death penalty?
+* `PlateLocSide`: plate location side (feet)
+* `PlateLocHeight`: plate location height (feet)
+* `ExitSpeed`: velocity of ball off contact (mph)
+* `PitchCall`: what happened to the pitch
 
 ```{r}
-data <- read_csv("data/cappunish20220107.csv")
+master <- read_csv("2022-2023.csv", col_types = cols(Date = col_date(format = "%m/%d/%Y")))
+
+master$Bearing <- ((master$Bearing * -1) + 90)*pi/180
+master$x <- master$Distance*cos(master$Bearing)
+master$y <- master$Distance*sin(master$Bearing)
+bases <- data.frame(xa = c(0, 90/sqrt(2), 0, -90/sqrt(2), 0, rep(0)),
+                    ya = c(0, 90/sqrt(2), 2 * 90/sqrt(2), 90/sqrt(2), 0, rep(0)))
+
+batting <- master %>%
+  filter(BatterTeam == "APP_MOU" | BatterTeam == "APP_PRA") %>%
+  filter(!PlayResult == "Undefined" & !TaggedHitType == "Bunt")
+
+x <- c(-.83,.83,.83,-.83,-.83)
+y <- c(1.6,1.6,3.3,3.3,1.6)
+sz <- data_frame(x, y)
+
+x1 <- c(-.95, -.95, 0, .95, .95, -.95)
+y1 <- c(0, .15, .25, .15, 0, 0)
+hp <- data_frame(x1, y1)
+
+x2 <- c(1.61, 3.11, 3.11, 1.61, 1.61)
+y2 <- c(0, 0, 5.5, 5.5, 0)
+rhb <- data_frame(x2, y2)
+
+x3 <- c(-1.61, -3.11, -3.11, -1.61, -1.61)
+y3 <- c(0, 0, 5.5, 5.5, 0)
+lhb <- data_frame(x3, y3)
+
+x4 <- c(0, 0, 1.08, 1.08, .83, 1.08, 1.08, 0, 0, 0, -1.08, -1.08, -.83, -1.08, -1.08, 0) 
+y4 <- c(3.3, 3.55, 3.55, 2.497, 2.497, 2.497, 1.35, 1.35, 1.6, 1.35, 1.35, 2.497, 2.497, 2.497, 3.55, 3.55)
+bllz <- data_frame(x4, y4)
+
+x5 <- c(-.5, -.5, .5, .5, -.5)
+y5 <- c(2, 3, 3, 2, 2)
+innersix <- data_frame(x5, y5)
+
+x6 <- c(-.95, .95, .95, -.95)
+y6 <- c(2.233, 2.233, 2.866, 2.866)
+szv <- data_frame(x6, y6)
+
+x7 <- c(-0.316, -0.316, 0.316, 0.316)
+y7 <- c(1.6, 3.5, 3.5, 1.6)
+szh <- data_frame(x7, y7)
+
+x8 <- c(0, 0, 1.267, 1.267, .95, 1.267, 1.267, 0, 0, 0, -1.267, -1.267, -.95, -1.267, -1.267, 0)
+y8 <- c(3.5, 3.817, 3.817, 2.55, 2.55, 2.55, 1.283, 1.283, 1.6, 1.283, 1.283, 2.55, 2.55, 2.55, 3.817, 3.817)
+bllzhm <- data_frame(x8, y8)
+
+x9 <- c(-.95,.95,.95,-.95,-.95)
+y9 <- c(1.6,1.6,3.5,3.5,1.6)
+szhm <- data_frame(x9, y9)
+
+ exits <- batting %>%
+      filter(PitchCall == "InPlay" & ExitSpeed & !batting$TaggedHitType == "Bunt")
+    
+    tr <- exits %>%
+      filter(PlateLocSide >= .316 & PlateLocSide <= .95 & PlateLocHeight >= 2.886 & PlateLocHeight <= 3.5) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    t <- exits %>%
+      filter(PlateLocSide <= .316 & PlateLocSide >= -.316 & PlateLocHeight >= 2.886 & PlateLocHeight <= 3.5) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    tl <- exits %>%
+      filter(PlateLocSide <= -.316 & PlateLocSide >= -.95 & PlateLocHeight >= 2.886 & PlateLocHeight <= 3.5) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    mr <- exits %>%
+      filter(PlateLocSide >= .316 & PlateLocSide <= .95 & PlateLocHeight <= 2.886 & PlateLocHeight >= 2.233) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    m <- exits %>%
+      filter(PlateLocSide <= .316 & PlateLocSide >= -.316 & PlateLocHeight <= 2.886 & PlateLocHeight >= 2.233) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    ml <- exits %>%
+      filter(PlateLocSide <= -.316 & PlateLocSide >= -.95 & PlateLocHeight <= 2.886 & PlateLocHeight >= 2.233) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    br <- exits %>%
+      filter(PlateLocSide >= .316 & PlateLocSide <= .95 & PlateLocHeight <= 2.223 & PlateLocHeight >= 1.6) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    b <- exits %>%
+      filter(PlateLocSide <= .316 & PlateLocSide >= -.316 & PlateLocHeight <= 2.223 & PlateLocHeight >= 1.6) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    bl <- exits %>%
+      filter(PlateLocSide <= -.316 & PlateLocSide >= -.95 & PlateLocHeight <= 2.223 & PlateLocHeight >= 1.6) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    btr <- exits %>%
+      filter(PlateLocSide >= .95 & PlateLocHeight >= 2.55 | PlateLocSide >= 0 & PlateLocHeight >= 3.5) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    btl <- exits %>%
+      filter(PlateLocSide <= -.95 & PlateLocHeight >= 2.55 | PlateLocSide <= 0 & PlateLocHeight >= 3.5) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    bbr <- exits %>%
+      filter(PlateLocSide >= .95 & PlateLocHeight <= 2.55 | PlateLocSide >= 0 & PlateLocHeight <= 1.6) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    bbl <- exits %>%
+      filter(PlateLocSide <= -.95 & PlateLocHeight <= 2.55 | PlateLocSide <= 0 & PlateLocHeight <= 1.6) %>%
+      summarise(mean = mean(ExitSpeed, na.rm = TRUE))
+    
+    xtr <- c(.623)
+    ytr <- c(3.193)
+    trdf <- data.frame(x = xtr, y = ytr, z = tr)
+    xt <- c(0)
+    yt <- c(3.193)
+    tdf <- data.frame(x = xt, y = yt, z = t)
+    xtl <- c(-.623)
+    ytl <- c(3.193)
+    tldf <- data.frame(x = xtl, y = ytl, z = tl)
+    xmr <- c(.623)
+    ymr <- c(2.55)
+    mrdf <- data.frame(x = xmr, y = ymr, z = mr)
+    xm <- c(0)
+    ym <- c(2.55)
+    mdf <- data.frame(x = xm, y = ym, z = m)
+    xml <- c(-.623)
+    yml <- c(2.55)
+    mldf <- data.frame(x = xml, y = yml, z = ml)
+    xbr <- c(.623)
+    ybr <- c(1.917)
+    brdf <- data.frame(x = xbr, y = ybr, z = br)
+    xb <- c(0)
+    yb <- c(1.917)
+    bdf <- data.frame(x = xb, y = yb, z = b)
+    xbl <- c(-.623)
+    ybl <- c(1.917)
+    bldf <- data.frame(x = xbl, y = ybl, z = bl)
+    hmsdf <- rbind(trdf, tdf, tldf, mrdf, mdf, mldf, brdf, bdf, bldf)
+    hmsdf[is.na(hmsdf)] <- 0
+    xbtr <- c(.634)
+    ybtr <- c(3.184)
+    btrdf <- data.frame(x = xbtr, y = ybtr, z = btr)
+    xbtl <- c(-.634)
+    ybtl <- c(3.184)
+    btldf <- data.frame(x = xbtl, y = ybtl, z = btl)
+    xbbr <- c(.634)
+    ybbr <- c(1.917)
+    bbrdf <- data.frame(x = xbbr, y = ybbr, z = bbr)
+    xbbl <- c(-.634)
+    ybbl <- c(1.917)
+    bbldf <- data.frame(x = xbbl, y = ybbl, z = bbl)
+    hmbdf <- rbind(btrdf, btldf, bbrdf, bbldf)
+    hmbdf[is.na(hmbdf)] <- 0
 ```
 
 ##
 
 ```{r, fig.align = "center", fig.width = 7.5, fig}
-ggplot(data, aes(x = dp2, fill = dp2)) +
-  geom_bar(width = 0.5) +
-  scale_x_discrete(labels = c("no death penalty", "death penalty", "in moratorium*")) +
-  scale_y_continuous(breaks = seq(from = 0, to = 30, by = 4), limits = c(0, 28)) +
-  scale_fill_brewer(palette = "Set2") +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 10),
-    axis.title.y = element_text(size = 12),
-    panel.grid.major.x = element_blank(),
-    legend.position = "none"
-  ) +
-  labs(
-    title = "How many U.S. states have the death penalty?",
-    subtitle = "Data includes all 50 states and the District of Columbia",
-    caption = "*death penalty is legal but currently under governor's moratorium",
-    x = NULL,
-    y = "number of states"
-  )
+ggplot(bases, aes(x = xa, y = ya)) +
+      geom_path() +
+      geom_point(data = batting, x = batting$x, y = batting$y,
+                 aes(color = factor(batting$PlayResult))) +
+      labs(color = "Play Result") +
+      geom_segment(x = 0, xend = -233.35, y = 0, yend = 233.35) +
+      geom_segment(x = -233.35, xend = -160.59, y = 233.35, yend = 340) +
+      geom_segment(x = -160.59, xend = -49.36, y = 340, yend = 401.98) +
+      geom_segment(x = -49.36, xend = 49.36, y = 401.98, yend = 401.98) +
+      geom_segment(x = 49.36, xend = 157.67, y = 401.98, yend = 338.05) +
+      geom_segment(x = 157.67, xend = 229.81, y = 338.05, yend = 229.81) +
+      geom_segment(x = 229.81, xend = 0, y = 229.81, yend = 0) +
+      xlim(-250, 250) + ylim(-10, 500) +
+      theme(axis.line = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            panel.background = element_blank(),
+            panel.border = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.background = element_blank()) +
+      coord_equal() +
+      scale_color_discrete(limits = c("Single" ,"Double", "Triple", "HomeRun", "Out", "FieldersChoice", "Error"))
 ```
 
-This is a serviceable plot, but kind of bland, right?
+This is a spray chart of every ball in play at Jim and Bettie Smith Stadium, Fall of 2022.
 
 ##
 
 ```{r, fig.align = "center", fig.width = 7.5}
-ggplot(data, aes(x = region, fill = dp2)) +
-  geom_bar(position = "fill", width = 0.5) +
-  scale_x_discrete(labels = c(
-    "Midwest\n(12 states)",
-    "Northeast\n(9 states)",
-    "South\n(17 states)",
-    "West\n(13 states)"
-  )) +
-  scale_y_continuous(
-    breaks = seq(from = 0, to = 1, by = 0.1),
-    labels = scales::percent_format(scale = 100)
-  ) +
-  scale_fill_brewer(
-    palette = "Set2",
-    labels = c("no death penalty", "death penalty", "in moratorium*")
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(size = 12),
-    axis.text.y = element_text(size = 10),
-    axis.title.y = element_text(size = 12),
-    panel.grid.major.x = element_blank()
-  ) +
-  labs(
-    title = "Death Penalty within U.S. Census Regions",
-    subtitle = "Data includes all 50 states and the District of Columbia",
-    caption = "*death penalty is legal but currently under governor's moratorium",
-    x = NULL,
-    y = "percentage of states",
-    fill = NULL
-  )
+ggplot(hmsdf, aes(x, y)) +
+  geom_tile(data = hmbdf, aes(fill = mean), width = 1.267, height = 1.267, na.value = "white") +
+  geom_tile(aes(fill = mean), width = .633, height = .633, na.value = "white") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = 85,
+                       limits = c(75, 95), oob = squish) +
+  labs(fill = "Exit Speed") +
+  geom_path(data = szhm, aes(x = x9, y = y9)) +
+  geom_path(data = szv, aes(x = x6, y = y6)) +
+      geom_path(data = szh, aes(x = x7, y = y7)) +
+      geom_path(data = bllzhm, aes(x = x8, y = y8)) +
+      geom_text(mapping = aes(x = .623, y = 3.193), label = paste(sprintf("%.2f", tr)), size = 2.5) +
+      geom_text(mapping = aes(x = 0, y = 3.193), label = paste(sprintf("%.2f", t)), size = 2.5) +
+      geom_text(mapping = aes(x = -.623, y = 3.193), label = paste(sprintf("%.2f", tl)), size = 2.5) +
+      geom_text(mapping = aes(x = .623, y = 2.55), label = paste(sprintf("%.2f", mr)), size = 2.5) +
+      geom_text(mapping = aes(x = 0, y = 2.55), label = paste(sprintf("%.2f", m)), size = 2.5) +
+      geom_text(mapping = aes(x = -.623, y = 2.55), label = paste(sprintf("%.2f", ml)), size = 2.5) +
+      geom_text(mapping = aes(x = .623, y = 1.917), label = paste(sprintf("%.2f", br)), size = 2.5) +
+      geom_text(mapping = aes(x = 0, y = 1.917), label = paste(sprintf("%.2f", b)), size = 2.5) +
+      geom_text(mapping = aes(x = -.623, y = 1.917), label = paste(sprintf("%.2f", bl)), size = 2.5) +
+      geom_text(mapping = aes(x = .95, y = 3.659), label = paste(sprintf("%.2f", btr)), size = 2.5) +
+      geom_text(mapping = aes(x = -.95, y = 3.659), label = paste(sprintf("%.2f", btl)), size = 2.5) +
+      geom_text(mapping = aes(x = .95, y = 1.442), label = paste(sprintf("%.2f", bbr)), size = 2.5) +
+      geom_text(mapping = aes(x = -.95, y = 1.442), label = paste(sprintf("%.2f", bbl)), size = 2.5) +
+      geom_path(data = rhb, aes(x = x2, y = y2), color = "lightgray") +
+      geom_path(data = lhb, aes(x = x3, y = y3), color = "lightgray") +
+      geom_text(mapping = aes(x = 2.36, y = 2.75), label = paste("RHB"), color = "lightgray") +
+      geom_text(mapping = aes(x = -2.36, y = 2.75), label = paste("LHB"), color = "lightgray") +
+      geom_polygon(hp, mapping = aes(x = x1, y = y1), color = "black", fill = "white") +
+      coord_equal() +
+      ggtitle("Exit Velocities Heat Map") +
+      coord_cartesian(xlim = c(-4.5, 4.5), ylim = c(0, 5.5)) +
+      theme(axis.line = element_blank(),
+            axis.text.x = element_blank(),
+            axis.text.y = element_blank(),
+            axis.ticks = element_blank(),
+            axis.title.x = element_blank(),
+            axis.title.y = element_blank(),
+            panel.background = element_blank(),
+            panel.border = element_blank(),
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            plot.background = element_blank(),
+            legend.title = element_blank())
 ```
 
-Do you notice any pattern in regions regarding proportions of states that do and do not have the death penalty?
-
-##
-
-```{r, fig.align = "center", fig.width = 9}
-USstates <- map_data("state")
-data %>%
-  mutate(state = tolower(state)) %>%
-  full_join(USstates, by = c("state" = "region")) %>%
-  ggplot() +
-  geom_polygon(aes(x = long, y = lat, group = group, fill = dp2), color = "black") +
-  coord_map(projection = "mercator") +
-  scale_fill_brewer(
-    palette = "Set2",
-    labels = c("no death penalty", "death penalty", "in moratorium*")
-  ) +
-  theme(
-    axis.title = element_blank(),
-    axis.text = element_blank(),
-    axis.line = element_blank(),
-    axis.ticks = element_blank(),
-    panel.border = element_blank(),
-    panel.grid = element_blank(),
-    panel.background = element_blank(),
-    legend.position = "top"
-  ) +
-  labs(
-    title = "Which states in the U.S. have the death penalty?",
-    subtitle = "Note: Alaska and Hawaii do not have the death penalty.",
-    caption = "*death penalty is legal but currently under governor's moratorium",
-    fill = NULL
-  )
-```
-
-Do you notice any pattern in states that do and do not have the death penalty?
-
-##
-
-```{r, fig.align = "center", fig.width = 7, fig.cap = "Figure Caption: This plot type is known as a Cleveland dot plot."}
-data %>%
-  filter(!is.na(abolished)) %>%
-  ggplot(aes(x = abolished, y = reorder(state, -abolished))) +
-  geom_vline(
-    xintercept = 1976,
-    linetype = "dashed",
-    size = 0.75,
-    color = "darkgray"
-  ) +
-  geom_segment(aes(yend = state), xend = 0, colour = "black") +
-  geom_point(color = "red", size = 3) +
-  geom_label(aes(label = "Furman v. Georgia 1976", x = 1945, y = "Wisconsin")) +
-  scale_x_continuous(breaks = seq(from = 1800, to = 2040, by = 20)) +
-  theme_minimal() +
-  theme(
-    plot.title = element_text(size = 16),
-    plot.subtitle = element_text(size = 12.5),
-    axis.text.x = element_text(angle = 45, hjust = 1)
-  ) +
-  labs(
-    title = "How long ago did U.S. states abolish the death penalty?",
-    subtitle = "23 states and D.C. have abolished the death penalty as of April 2022",
-    x = "year the death penalty was abolished",
-    y = NULL
-  )
-```
-
-What is Furman vs. Georgia 1976 and why would I put it on this plot? Do you see any interesting patterns?
-
-##
-
-```{r}
-outlierlabels <- data %>%
-  arrange(desc(post1976)) %>%
-  select(state, post1976) %>%
-  head(n = 1)
-
-ggplot(data, aes(x = post1976, y = 1)) +
-  geom_violin(fill = "skyblue", alpha = 0.5) +
-  geom_boxplot(
-    width = 0.05,
-    fill = "orange",
-    outlier.size = 2
-  ) +
-  geom_text(
-    data = outlierlabels,
-    aes(x = post1976, y = 1.05, label = state)
-  ) +
-  scale_x_continuous(
-    breaks = seq(from = 0, to = 600, by = 50),
-    limits = c(0, 600)
-  ) +
-  scale_y_continuous(breaks = NULL) +
-  theme_minimal() +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(
-    title = "Number of Executions per State Since 1976",
-    x = "total number of executions",
-    y = NULL
-  )
-```
-
-Wow, Texas --- what's up?!? Who are those smaller outlier states?
+Exit Velocities in each zone. Inner 9 is strike zone. Outer 4 is a ball.

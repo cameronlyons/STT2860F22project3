@@ -1,7 +1,7 @@
 ---
 title: "Personal Final Assessment"
 subtitle: "STT2860 F22 Project 03"
-author: "Authors: YOUR NAME HERE"
+author: "Authors: Cameron Lyons"
 date: "`r format(Sys.time(), '%A, %B %d, %Y @ %I:%M %p')`"
 output: 
   html_document: 
@@ -14,18 +14,18 @@ This is a free-form reflection about your experience in the course. Pleased wait
 
 **Question 1:** Reflect back on your experience in this course. What accomplishment(s) are you most proud of?
 
-ANSWER:
+ANSWER: The accomplishment I am most proud of is staying in touch with my coding skills. Coming into the class I was a well versed coder already. Working with Appalachian State Baseball has given me the opportunity to see a future career in the field. Being a Recreation Management major it is sometimes hard to focus on my future career and coding knowledge.
 
 **Question 2:** What topic(s) do you still find yourself struggling with? What materials, resources, or help do you feel you would need to help clear up this topic?
 
-ANSWER:
+ANSWER: I find myself struggling with what's next. When finding a career in baseball data analytics, math is applied as well and I worry that a won't be able to keep up with the vastly changing field. Hopefully this summer working with Canes baseball I can meet close contacts that can ease me into a career in analytics.
 
 **Question 3:** If you could go back to the start of the semester and do things over, what (if anything) would you change about your approach to this course?
 
-ANSWER:
+ANSWER: The only thing I would change is turning datacamp assignments on time. Pushing those back to second chances became hard as we had content to complete every week.
 
 **Question 4:** Consider the "Becoming a Data Scientist" interviews you watched for the first two projects. Do you consider *yourself* a data scientist? Please explain.
 
-ANSWER:
+ANSWER: I feel I have the easiest answer in the class. Of course I consider myself a data scientist working with Appalachian State Baseball and planning to convert the time spent into a career. I am well versed in R although research always plays a big factor.
 
 ***
